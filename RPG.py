@@ -1,4 +1,6 @@
 # coding: utf-8
+from flask import Flask,request
+app = Flask(__name__)
 
 def valider_colonnes(ligne):
     return len(ligne) == 3 # magick number
@@ -13,7 +15,7 @@ def recuperer_lignes(fichier):
             if valider_colonnes(ligne):
                 lignes.append(ligne)
             else:
-                print("  Probleme avec le nombre de colonnes.")
+                print("Probleme avec le nombre de colonnes.")
             ligne = f.readline()
     return lignes
             
@@ -27,6 +29,19 @@ def creer_fichier_scores(scores_tries):
     with open('scores.csv', 'w') as f:
         for nom, score in scores_tries:
             f.write(f'{nom},{score}\n')
+
+#De grande chance que je fasse tout ca coté JS au final...
+@app.route("/addscore",method='GET')
+def get_score():
+    """Fonction pour recuperer les points gagnés selon l'action via une API"""
+
+    actions = recuperer_lignes('actions.csv') #A changer pour quelque chose de plus dynamique dans le futur
+    points_registry = recuperer_points(actions)
+
+    action = request.form.action
+
+    return points_registry[action]
+
 
 if __name__ == '__main__':
     actions = recuperer_lignes('actions.csv') # magick str
